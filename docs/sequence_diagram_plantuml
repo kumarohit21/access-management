@@ -1,0 +1,46 @@
+@startuml
+actor Employee
+participant "IoT Device" as IoT
+participant "Entry/Exit Service" as Service
+participant "Pass Validation Service" as Validation
+database "Database" as DB
+
+== Entry Flow ==
+Employee -> IoT: Scan/Show Pass
+IoT -> Service: Send Entry Request
+Service -> Validation: Validate Pass
+Validation -> DB: Check Pass Status
+DB --> Validation: Pass Validity
+Validation --> Service: Valid/Invalid Response
+alt Pass Valid
+    Service -> IoT: Open Gate
+    Service -> DB: Log Entry
+else Pass Invalid
+    Service -> IoT: Deny Access
+end
+
+== Exit Flow ==
+Employee -> IoT: Scan/Show Pass
+IoT -> Service: Send Exit Request
+Service -> Validation: Validate Pass
+Validation -> DB: Check Pass Status
+DB --> Validation: Pass Validity
+Validation --> Service: Valid/Invalid Response
+alt Pass Valid
+    Service -> IoT: Open Gate
+    Service -> DB: Log Exit
+else Pass Invalid
+    Service -> IoT: Deny Access
+end
+
+== Invalid Scenarios ==
+Employee -> IoT: Scan Invalid/Inactive Pass
+IoT -> Service: Send Request
+Service -> Validation: Validate Pass
+Validation -> DB: Check Pass Status
+DB --> Validation: Pass Invalid
+Validation --> Service: Invalid Response
+Service -> IoT: Deny Access
+
+@enduml
+
