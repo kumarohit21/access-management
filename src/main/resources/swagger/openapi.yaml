@@ -1,0 +1,404 @@
+openapi: 3.0.1
+info:
+  title: Employee Access Card API
+  description: API for issuing access cards to employees for gate entry.
+  version: 1.0.0
+servers:
+  - url: https://api.company.com/v1
+    description: Main API server
+
+paths:
+  /cards/issue:
+    post:
+      summary: Issue an access card to an employee
+      description: Allows the creation of a new access card for an employee to be used at the gate.
+      operationId: issueCard
+      requestBody:
+        description: The employee details required to issue the access card.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - employeeId
+                - employeeName
+                - department
+              properties:
+                employeeId:
+                  type: string
+                  description: The unique identifier of the employee.
+                employeeName:
+                  type: string
+                  description: The full name of the employee.
+                department:
+                  type: string
+                  description: The department where the employee works.
+                email:
+                  type: string
+                  description: The email address of the employee.
+                accessLevel:
+                  type: string
+                  description: The level of access granted to the employee.
+                  enum:
+                    - basic
+                    - intermediate
+                    - advanced
+              example:
+                employeeId: "EMP12345"
+                employeeName: "John Doe"
+                department: "Engineering"
+                email: "john.doe@example.com"
+                accessLevel: "intermediate"
+      responses:
+        '200':
+          description: Card issued successfully
+          content:
+            application/json:
+
+        '400':
+          description: Bad request. The request is invalid or missing required fields.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "failure"
+                  message:
+                    type: string
+                    example: "Invalid request data, please check the provided information."
+                  data:
+                    type: object
+                    additionalProperties: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          example: "INVALID_REQUEST"
+                        message:
+                          type: string
+                          example: "Missing required field: employeeName"
+        '401':
+          description: Unauthorized. The user is not authorized to issue cards.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "unauthorized"
+                  message:
+                    type: string
+                    example: "Unauthorized to issue access card."
+                  data:
+                    type: object
+                    additionalProperties: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          example: "UNAUTHORIZED"
+                        message:
+                          type: string
+                          example: "You do not have permission to issue access cards."
+        '500':
+          description: Internal server error. An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "failure"
+                  message:
+                    type: string
+                    example: "An internal server error occurred. Please try again later."
+                  data:
+                    type: object
+                    additionalProperties: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          example: "INTERNAL_SERVER_ERROR"
+                        message:
+                          type: string
+                          example: "An unexpected error occurred while issuing the access card."
+
+  /cards/{cardId}/activate:
+    post:
+      summary: Activate an issued card
+      description: Activate an issued card to allow gate entry.
+      operationId: activateCard
+      parameters:
+        - in: path
+          name: cardId
+          required: true
+          description: The unique identifier for the access card.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Card activated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  message:
+                    type: string
+                    example: "Card activated successfully."
+                  data:
+                    type: object
+                    properties:
+                      cardId:
+                        type: string
+                        example: "CARD123456789"
+                      status:
+                        type: string
+                        example: "active"
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          example: "SUCCESS"
+                        message:
+                          type: string
+                          example: "No errors."
+        '400':
+          description: Bad request. The cardId is invalid or missing.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "failure"
+                  message:
+                    type: string
+                    example: "Invalid card ID."
+                  data:
+                    type: object
+                    additionalProperties: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          example: "INVALID_CARD_ID"
+                        message:
+                          type: string
+                          example: "Card ID is missing or malformed."
+        '401':
+          description: Unauthorized. The user is not authorized to activate the card.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "unauthorized"
+                  message:
+                    type: string
+                    example: "Unauthorized to activate access card."
+                  data:
+                    type: object
+                    additionalProperties: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          example: "UNAUTHORIZED"
+                        message:
+                          type: string
+                          example: "You do not have permission to activate the card."
+        '404':
+          description: Card not found. The card with the given ID does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "failure"
+                  message:
+                    type: string
+                    example: "Card not found."
+                  data:
+                    type: object
+                    additionalProperties: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          example: "CARD_NOT_FOUND"
+                        message:
+                          type: string
+                          example: "The specified card ID does not exist in the system."
+        '500':
+          description: Internal server error. An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "failure"
+                  message:
+                    type: string
+                    example: "An internal server error occurred. Please try again later."
+                  data:
+                    type: object
+                    additionalProperties: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          example: "INTERNAL_SERVER_ERROR"
+                        message:
+                          type: string
+                          example: "An unexpected error occurred while activating the access card."
+
+  /cards/{cardId}/deactivate:
+    post:
+      summary: Deactivate an issued card
+      description: Deactivate a card to prevent it from being used at the gate.
+      operationId: deactivateCard
+      parameters:
+        - in: path
+          name: cardId
+          required: true
+          description: The unique identifier for the access card.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Card deactivated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  message:
+                    type: string
+                    example: "Card deactivated successfully."
+                  data:
+                    type: object
+                    properties:
+                      cardId:
+                        type: string
+                        example: "CARD123456789"
+                      status:
+                        type: string
+                        example: "inactive"
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          example: "SUCCESS"
+                        message:
+                          type: string
+                          example: "No errors."
+        '400':
+          description: Bad request. The cardId is invalid or missing.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "failure"
+                  message:
+                    type: string
+                    example: "Invalid card ID."
+                  data:
+                    type: object
+                    additionalProperties: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          example: "SUCCESS"
+                        message:
+                          type: string
+                          example: "No errors."
+
+
+components:
+  schemas:
+    CardIssuedResponse:
+      type: object
+      properties:
+        cardId:
+          type: string
+          example: 77891723
+        empId:
+          type: string
+          example: 32423
+    Error:
+      type: object
+      properties:
+        field:
+          type: string
+          example: "employeeId"
+        message:
+          type: string
+          example: "EmployeeId not valid"
+    ApiResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [SUCCESS,FAILED,UNAUTHORIZED,BAD_REQUEST]
+        message:
+          type: string
+          example: "Access card issued successfully"
+        data:
+          type: object
+        error:
+          type: array
+          items:
+            $ref: "#/components/schemas/Error"
