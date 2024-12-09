@@ -6,15 +6,15 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
+@Table(name = "employee_access_card_tbl")
 public class EmployeeAccessCard {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer recordId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "emp_id", nullable = false)
-    private Employee employee;
+    @Column(nullable = false)
+    private Integer empId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "card_id", nullable = false)
@@ -26,68 +26,43 @@ public class EmployeeAccessCard {
     @Column
     private LocalDateTime returnDt;
 
-    // Getters and Setters
-    // toString, equals, and hashCode
-
     public Integer getRecordId() {
         return recordId;
-    }
-
-    public Employee getEmployee() {
-        return employee;
-    }
-
-    public AccessCard getAccessCard() {
-        return accessCard;
-    }
-
-    public LocalDateTime getIssuedDt() {
-        return issuedDt;
-    }
-
-    public LocalDateTime getReturnDt() {
-        return returnDt;
     }
 
     public void setRecordId(Integer recordId) {
         this.recordId = recordId;
     }
 
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
+    public Integer getEmpId() {
+        return empId;
+    }
+
+    public void setEmpId(Integer empId) {
+        this.empId = empId;
+    }
+
+    public AccessCard getAccessCard() {
+        return accessCard;
     }
 
     public void setAccessCard(AccessCard accessCard) {
         this.accessCard = accessCard;
     }
 
+    public LocalDateTime getIssuedDt() {
+        return issuedDt;
+    }
+
     public void setIssuedDt(LocalDateTime issuedDt) {
         this.issuedDt = issuedDt;
     }
 
+    public LocalDateTime getReturnDt() {
+        return returnDt;
+    }
+
     public void setReturnDt(LocalDateTime returnDt) {
         this.returnDt = returnDt;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof EmployeeAccessCard that)) return false;
-        return Objects.equals(recordId, that.recordId) && Objects.equals(employee, that.employee) && Objects.equals(accessCard, that.accessCard) && Objects.equals(issuedDt, that.issuedDt) && Objects.equals(returnDt, that.returnDt);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(recordId, employee, accessCard, issuedDt, returnDt);
-    }
-
-    @Override
-    public String toString() {
-        return "EmployeeAccessCard{" +
-                "recordId=" + recordId +
-                ", employee=" + employee +
-                ", accessCard=" + accessCard +
-                ", issuedDt=" + issuedDt +
-                ", returnDt=" + returnDt +
-                '}';
     }
 }

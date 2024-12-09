@@ -1,7 +1,9 @@
 package com.corpguard.service.passmanagement.dto;
 
-public class CardIssuedResponse {
+public record CardIssuedResponse (
 
-    private String cardId;
-    private String employeeId;
+     Integer cardId,
+     Integer employeeId){
+
+
 }

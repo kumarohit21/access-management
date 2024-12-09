@@ -1,10 +1,18 @@
 package com.corpguard.service.passmanagement.service;
 
+import com.corpguard.service.passmanagement.dto.AccessCardDTO;
+import com.corpguard.service.passmanagement.entity.accesscard.AccessCard;
 import com.corpguard.service.passmanagement.repo.accesscard.AccessCardRepository;
 import com.corpguard.service.passmanagement.repo.accesscard.EmployeeAccessCardRepository;
 import com.corpguard.service.passmanagement.repo.employee.EmployeeRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Collection;
+import java.util.List;
 
 @Service
 public class AccessCardServiceImpl implements AccessCardService{
@@ -42,6 +50,14 @@ public class AccessCardServiceImpl implements AccessCardService{
 
         // Step 2: Mark the card as inactive in Access_Card table
         accessCardRepository.returnAndDeactivate(cardId);
+    }
+
+    @Override
+    public Page<AccessCardDTO> fetchCards(Boolean active, Boolean issues, Pageable pageable) {
+        Page<AccessCard> cardsByActiveAndIssued = accessCardRepository.getCardsByActiveAndIssues(active, issues, pageable);
+        List<AccessCardDTO> data =  cardsByActiveAndIssued.get().map(a-> new AccessCardDTO(a.getCardId(),a.getIssues(),a.getActive())).toList();
+        return new PageImpl<>(data,cardsByActiveAndIssued.getPageable(),cardsByActiveAndIssued.getTotalPages());
+
     }
 
 }

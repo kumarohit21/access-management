@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -28,14 +29,14 @@ import java.util.Map;
 public class AccessManagementDataSourceConfiguration {
 
     @Bean(name = "accessDataSourceProperties")
-    @ConfigurationProperties("spring.datasource-access")
+    @ConfigurationProperties("spring.datasource-accessmgmt")
     public DataSourceProperties accessDataSourceProperties() {
         return new DataSourceProperties();
     }
 
     @Primary
     @Bean(name = "accessDataSource")
-    @ConfigurationProperties("spring.datasource-access.configuration")
+    @ConfigurationProperties("spring.datasource-accessmgmt")
     public DataSource accessDataSource(@Qualifier("accessDataSourceProperties") DataSourceProperties accessDataSourceProperties) {
         return accessDataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
@@ -43,11 +44,11 @@ public class AccessManagementDataSourceConfiguration {
     @Primary
     @Bean(name = "accessEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean accessEntityManagerFactory(
-            EntityManagerFactoryBuilder accessEntityManagerFactoryBuilder, @Qualifier("accessDataSource") DataSource accessDataSource) {
+           @Qualifier("accessEntityManagerFactoryBuilder") EntityManagerFactoryBuilder accessEntityManagerFactoryBuilder, @Qualifier("accessDataSource") DataSource accessDataSource) {
 
         Map<String, String> accessJpaProperties = new HashMap<>();
-        accessJpaProperties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
-        accessJpaProperties.put("hibernate.hbm2ddl.auto", "create-drop");
+        accessJpaProperties.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+        accessJpaProperties.put("hibernate.hbm2ddl.auto", "update");
 
         return accessEntityManagerFactoryBuilder
                 .dataSource(accessDataSource)
@@ -63,5 +64,10 @@ public class AccessManagementDataSourceConfiguration {
             @Qualifier("accessEntityManagerFactory") EntityManagerFactory accessEntityManagerFactory) {
 
         return new JpaTransactionManager(accessEntityManagerFactory);
+    }
+
+    @Bean(name="accessEntityManagerFactoryBuilder")
+    public EntityManagerFactoryBuilder entityManagerFactoryBuilder() {
+        return new EntityManagerFactoryBuilder(new HibernateJpaVendorAdapter(), new HashMap<>(), null);
     }
 }

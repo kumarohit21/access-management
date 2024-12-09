@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -35,7 +36,7 @@ public class EmployeeDataSourceConfiguration {
 
     @Primary
     @Bean(name = "employeeDataSource")
-    @ConfigurationProperties("spring.datasource-employee.configuration")
+    @ConfigurationProperties("spring.datasource-employee")
     public DataSource employeeDataSource(@Qualifier("employeeDataSourceProperties") DataSourceProperties employeeDataSourceProperties) {
         return employeeDataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
@@ -43,11 +44,11 @@ public class EmployeeDataSourceConfiguration {
     @Primary
     @Bean(name = "employeeEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean employeeEntityManagerFactory(
-            EntityManagerFactoryBuilder employeeEntityManagerFactoryBuilder, @Qualifier("employeeDataSource") DataSource employeeDataSource) {
+          @Qualifier("employeeEntityManagerFactoryBuilder")  EntityManagerFactoryBuilder employeeEntityManagerFactoryBuilder, @Qualifier("employeeDataSource") DataSource employeeDataSource) {
 
         Map<String, String> employeeJpaProperties = new HashMap<>();
-        employeeJpaProperties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
-        employeeJpaProperties.put("hibernate.hbm2ddl.auto", "create-drop");
+        employeeJpaProperties.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+        employeeJpaProperties.put("hibernate.hbm2ddl.auto", "update");
 
         return employeeEntityManagerFactoryBuilder
                 .dataSource(employeeDataSource)
@@ -63,5 +64,11 @@ public class EmployeeDataSourceConfiguration {
             @Qualifier("employeeEntityManagerFactory") EntityManagerFactory employeeEntityManagerFactory) {
 
         return new JpaTransactionManager(employeeEntityManagerFactory);
+    }
+
+
+    @Bean(name="employeeEntityManagerFactoryBuilder")
+    public EntityManagerFactoryBuilder entityManagerFactoryBuilder() {
+        return new EntityManagerFactoryBuilder(new HibernateJpaVendorAdapter(), new HashMap<>(), null);
     }
 }

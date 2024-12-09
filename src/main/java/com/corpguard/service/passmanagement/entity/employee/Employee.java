@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
+@Table(name = "employee_tbl")
 public class Employee {
 
     @Id
@@ -18,8 +19,7 @@ public class Employee {
     @Column(nullable = false, length = 100)
     private String empDept;
 
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EmployeeAccessCard> accessCards;
+
 
     public Integer getEmpId() {
         return empId;
@@ -45,32 +45,15 @@ public class Employee {
         this.empDept = empDept;
     }
 
-    public List<EmployeeAccessCard> getAccessCards() {
-        return accessCards;
-    }
-
-    public void setAccessCards(List<EmployeeAccessCard> accessCards) {
-        this.accessCards = accessCards;
-    }
-
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Employee employee)) return false;
-        return Objects.equals(empId, employee.empId) && Objects.equals(empName, employee.empName) && Objects.equals(empDept, employee.empDept) && Objects.equals(accessCards, employee.accessCards);
+        if (o == null || getClass() != o.getClass()) return false;
+        Employee employee = (Employee) o;
+        return Objects.equals(empId, employee.empId) && Objects.equals(empName, employee.empName) && Objects.equals(empDept, employee.empDept);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(empId, empName, empDept, accessCards);
-    }
-
-    @Override
-    public String toString() {
-        return "Employee{" +
-                "empId=" + empId +
-                ", empName='" + empName + '\'' +
-                ", empDept='" + empDept + '\'' +
-                ", accessCards=" + accessCards +
-                '}';
+        return Objects.hash(empId, empName, empDept);
     }
 }
